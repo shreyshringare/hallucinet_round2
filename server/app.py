@@ -1,0 +1,352 @@
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+from typing import Optional
+
+try:
+    from .environment import HallucinationEnvironment
+except ImportError:
+    from environment import HallucinationEnvironment
+
+try:
+    from generator_environment import GeneratorEnvironment
+except ImportError:
+    from .generator_environment import GeneratorEnvironment
+
+from models import HallucinationAction, GeneratorAction
+
+app = FastAPI(title="HalluciNet Adversarial - Round 2")
+
+# Two environments - detector and generator
+detector_env = HallucinationEnvironment()
+generator_env = GeneratorEnvironment()
+
+
+# Request Models
+class ResetRequest(BaseModel):
+    task_id: Optional[str] = "easy"
+
+
+class DetectorStepRequest(BaseModel):
+    action: HallucinationAction
+
+
+class GeneratorStepRequest(BaseModel):
+    action: GeneratorAction
+
+
+# Detector Endpoints (Round 1 compatible)
+@app.post("/reset")
+def reset(body: ResetRequest = ResetRequest()):
+    obs = detector_env.reset(task_id=body.task_id)
+    return {"observation": obs.model_dump(), "reward": None, "done": False}
+
+
+@app.post("/step")
+def step(body: DetectorStepRequest):
+    obs = detector_env.step(body.action)
+    return {"observation": obs.model_dump(), "reward": obs.reward, "done": obs.done}
+
+
+@app.get("/state")
+def state():
+    return detector_env.state().model_dump()
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "mode": "adversarial", "version": "2.0"}
+
+
+# Generator Endpoints (Round 2 new)
+@app.post("/generator/reset")
+def generator_reset(body: ResetRequest = ResetRequest()):
+    obs = generator_env.reset(task_id=body.task_id)
+    return {"observation": obs.model_dump(), "reward": None, "done": False}
+
+
+@app.post("/generator/step")
+def generator_step(body: GeneratorStepRequest):
+    obs = generator_env.step(body.action)
+    return {"observation": obs.model_dump(), "reward": obs.reward, "done": obs.done}
+
+
+@app.get("/generator/state")
+def generator_state():
+    return generator_env.state().model_dump()
+
+
+# Adversarial Info Endpoint
+@app.get("/adversarial/info")
+def adversarial_info():
+    return {
+        "description": "HalluciNet Adversarial - Multi-Agent Self-Play",
+        "generator": {
+            "endpoint": "/generator/reset and /generator/step",
+            "action_space": {
+                "generated_response": "string - the hallucinated response",
+                "error_type": "string - year_swap/name_swap/negation/entity_flip/etc",
+                "confidence": "float strictly between 0 and 1"
+            }
+        },
+        "detector": {
+            "endpoint": "/reset and /step",
+            "action_space": {
+                "has_hallucination": "bool",
+                "hallucinated_claim": "string or null",
+                "correct_fact": "string or null",
+                "confidence": "float strictly between 0 and 1"
+            }
+        },
+        "tasks": ["easy", "medium", "hard", "expert"],
+        "themes": ["Theme 1: Multi-Agent", "Theme 4: Self-Improvement"]
+    }
+
+
+# Web UI
+@app.get("/")
+@app.get("/demo")
+def demo_ui():
+    return HTMLResponse("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HalluciNet Adversarial - Round 2</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, Arial, sans-serif; background: #0f1117; color: #e0e0e0; }
+        .header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 30px; text-align: center; border-bottom: 2px solid #0066cc; }
+        h1 { color: #00aaff; font-size: 28px; }
+        .subtitle { color: #888; margin-top: 8px; }
+        .tags { margin-top: 12px; }
+        .tag { display: inline-block; background: rgba(0,102,204,0.2); color: #00aaff; border: 1px solid #0066cc; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin: 3px; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
+        .card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 24px; margin: 20px 0; }
+        .card h2 { color: #00aaff; margin-bottom: 16px; font-size: 18px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        textarea { width: 100%; height: 100px; padding: 12px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; font-size: 13px; resize: vertical; }
+        input[type=text] { width: 100%; padding: 10px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; margin: 6px 0; }
+        select { padding: 10px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; }
+        button { background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px; transition: background 0.2s; }
+        button:hover { background: #0052a3; }
+        .score { font-size: 28px; font-weight: bold; color: #00aaff; }
+        .breakdown { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 12px 0; }
+        .metric { background: #0f1117; border: 1px solid #333; padding: 10px; border-radius: 8px; text-align: center; }
+        .metric-val { font-size: 18px; font-weight: bold; color: #00aaff; }
+        .metric-lbl { font-size: 10px; color: #666; margin-top: 4px; }
+        .feedback { background: #0f1117; border-left: 3px solid #00aaff; padding: 12px; border-radius: 4px; margin-top: 12px; font-size: 13px; }
+        .winner { font-size: 20px; font-weight: bold; padding: 8px; border-radius: 8px; margin: 8px 0; }
+        .gen-wins { background: rgba(255,100,0,0.2); color: #ff6400; }
+        .det-wins { background: rgba(0,200,100,0.2); color: #00c864; }
+        label { color: #888; font-size: 13px; display: block; margin-top: 12px; margin-bottom: 4px; }
+        .range-row { display: flex; align-items: center; gap: 12px; }
+        .range-row input { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HalluciNet Adversarial</h1>
+        <div class="subtitle">Multi-Agent Self-Improving Hallucination Detection - Round 2</div>
+        <div class="tags">
+            <span class="tag">Theme 1: Multi-Agent</span>
+            <span class="tag">Theme 4: Self-Improvement</span>
+            <span class="tag">OpenEnv Compatible</span>
+            <span class="tag">4 Difficulty Levels</span>
+            <span class="tag">Adversarial Self-Play</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Adversarial Demo</h2>
+            <p style="color:#888;margin-bottom:16px">Generator creates hallucinations. Detector tries to catch them. Watch them compete.</p>
+
+            <label>Difficulty:</label>
+            <select id="task">
+                <option value="easy">Easy - Obvious errors</option>
+                <option value="medium">Medium - Mixed errors</option>
+                <option value="hard" selected>Hard - Adversarial traps</option>
+                <option value="expert">Expert - Multi-hop reasoning</option>
+            </select>
+            <button onclick="loadSample()" style="margin-left:12px">Load Sample</button>
+
+            <div class="grid" style="margin-top:16px">
+                <div>
+                    <label>Reference Document (ground truth):</label>
+                    <textarea id="ref" placeholder="Click Load Sample..."></textarea>
+                </div>
+                <div>
+                    <label>Generated LLM Response (may be hallucinated):</label>
+                    <textarea id="gen_response" placeholder="Will appear after Generator runs..."></textarea>
+                </div>
+            </div>
+
+            <div class="grid" style="margin-top:16px">
+                <div class="card" style="margin:0">
+                    <h2 style="color:#ff6400">Generator Agent</h2>
+                    <label>Error Type:</label>
+                    <select id="error_type">
+                        <option value="year_swap">Year Swap</option>
+                        <option value="name_swap">Name Swap</option>
+                        <option value="number_swap">Number Swap</option>
+                        <option value="negation">Negation Trap</option>
+                        <option value="entity_flip">Entity Flip</option>
+                        <option value="unit_shift">Unit Shift</option>
+                        <option value="partial_truth">Partial Truth</option>
+                    </select>
+                    <label>Generator Confidence:</label>
+                    <div class="range-row">
+                        <input type="range" id="gen_conf" min="0.01" max="0.99" step="0.01" value="0.80" oninput="document.getElementById('gc').innerText=parseFloat(this.value).toFixed(2)">
+                        <span id="gc">0.80</span>
+                    </div>
+                    <label>Your Hallucination:</label>
+                    <textarea id="gen_text" rows="3" placeholder="Write a subtle hallucination based on the reference..."></textarea>
+                    <button onclick="runGenerator()" style="margin-top:8px;background:#cc4400">Generate Hallucination</button>
+                    <div id="gen_result" style="display:none;margin-top:12px">
+                        <div class="score" id="gen_score"></div>
+                        <div class="feedback" id="gen_feedback"></div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin:0">
+                    <h2 style="color:#00c864">Detector Agent</h2>
+                    <label>Hallucinated Claim (or blank if clean):</label>
+                    <input type="text" id="det_claim" placeholder="Quote the wrong phrase...">
+                    <label>Correct Fact:</label>
+                    <input type="text" id="det_fact" placeholder="What does reference say?">
+                    <label>Detector Confidence:</label>
+                    <div class="range-row">
+                        <input type="range" id="det_conf" min="0.01" max="0.99" step="0.01" value="0.80" oninput="document.getElementById('dc').innerText=parseFloat(this.value).toFixed(2)">
+                        <span id="dc">0.80</span>
+                    </div>
+                    <button onclick="runDetector()" style="margin-top:8px;background:#006644">Submit Detection</button>
+                    <div id="det_result" style="display:none;margin-top:12px">
+                        <div class="score" id="det_score"></div>
+                        <div class="breakdown" id="det_breakdown"></div>
+                        <div class="feedback" id="det_feedback"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="battle_result" style="display:none;margin-top:20px;text-align:center">
+                <div class="winner" id="winner_display"></div>
+                <p style="color:#888;margin-top:8px">Generator reward: <span id="gr"></span> | Detector reward: <span id="dr"></span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>System Info</h2>
+            <div id="info_display" style="font-family:monospace;font-size:13px;color:#888">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+    async function loadSample() {
+        const r = await fetch('/reset', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({task_id: document.getElementById('task').value})
+        });
+        const d = await r.json();
+        const obs = d.observation || d;
+        document.getElementById('ref').value = obs.reference_document || '';
+        document.getElementById('gen_response').value = '';
+        document.getElementById('gen_result').style.display = 'none';
+        document.getElementById('det_result').style.display = 'none';
+        document.getElementById('battle_result').style.display = 'none';
+    }
+
+    async function runGenerator() {
+        const genText = document.getElementById('gen_text').value;
+        if (!genText) { alert('Write a hallucination first'); return; }
+
+        await fetch('/generator/reset', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({task_id: document.getElementById('task').value})
+        });
+
+        const stepR = await fetch('/generator/step', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({action:{
+                generated_response: genText,
+                error_type: document.getElementById('error_type').value,
+                confidence: parseFloat(document.getElementById('gen_conf').value)
+            }})
+        });
+        const stepD = await stepR.json();
+        const obs = stepD.observation || stepD;
+
+        document.getElementById('gen_response').value = genText;
+        document.getElementById('gen_result').style.display = 'block';
+        document.getElementById('gen_score').innerText = 'Generator Score: ' + (obs.fooling_rate||0).toFixed(3);
+        document.getElementById('gen_feedback').innerText = obs.feedback || '';
+    }
+
+    async function runDetector() {
+        const claim = document.getElementById('det_claim').value;
+        const r = await fetch('/step', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({action:{
+                has_hallucination: claim.length > 0,
+                hallucinated_claim: claim || null,
+                correct_fact: document.getElementById('det_fact').value || null,
+                confidence: parseFloat(document.getElementById('det_conf').value)
+            }})
+        });
+        const d = await r.json();
+        const obs = d.observation || d;
+        const bd = obs.metadata?.reward_breakdown || {};
+
+        const caught = claim.length > 0;
+        const genReward = caught ? 0.001 : 0.999;
+        const detReward = obs.score || 0;
+
+        document.getElementById('det_result').style.display = 'block';
+        document.getElementById('det_score').innerText = 'Detector Score: ' + (obs.score||0).toFixed(3);
+        document.getElementById('det_breakdown').innerHTML = `
+            <div class="metric"><div class="metric-val">${(bd.detection||0).toFixed(2)}</div><div class="metric-lbl">Detection</div></div>
+            <div class="metric"><div class="metric-val">${(bd.phrase||0).toFixed(2)}</div><div class="metric-lbl">Phrase ID</div></div>
+            <div class="metric"><div class="metric-val">${(bd.fact||0).toFixed(2)}</div><div class="metric-lbl">Correct Fact</div></div>
+            <div class="metric"><div class="metric-val">${(bd.calibration||0).toFixed(2)}</div><div class="metric-lbl">Calibration</div></div>`;
+        document.getElementById('det_feedback').innerText = obs.feedback || '';
+
+        document.getElementById('battle_result').style.display = 'block';
+        const winnerEl = document.getElementById('winner_display');
+        if (caught) {
+            winnerEl.className = 'winner det-wins';
+            winnerEl.innerText = 'DETECTOR WINS - Hallucination caught!';
+        } else {
+            winnerEl.className = 'winner gen-wins';
+            winnerEl.innerText = 'GENERATOR WINS - Hallucination missed!';
+        }
+        document.getElementById('gr').innerText = genReward.toFixed(3);
+        document.getElementById('dr').innerText = detReward.toFixed(3);
+    }
+
+    async function loadInfo() {
+        const r = await fetch('/adversarial/info');
+        const d = await r.json();
+        document.getElementById('info_display').innerText = JSON.stringify(d, null, 2);
+    }
+
+    loadSample();
+    loadInfo();
+    </script>
+</body>
+</html>
+""")
+
+def main():
+    import uvicorn
+    uvicorn.run(
+        "server.app:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "7860")),
+        reload=False
+    )
+
+if __name__ == "__main__":
+    main()
