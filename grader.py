@@ -104,7 +104,7 @@ def _coverage_ratio(claim: str, gt_phrases: List[str]) -> float:
     return min(covered / len(gt_phrases), 1.0)
 
 
-def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
+def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str, Dict[str, float]]:
     """
     Score an agent's HallucinationAction against a sample's ground truth.
 
@@ -123,6 +123,9 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
 
     feedback_parts: List[str] = []
     base_score = 0.0
+    detection_score = 0.0
+    phrase_score = 0.0
+    fact_score = 0.0
 
     # ── Case 1: False alarm on clean sample ──────────────────────────
     if agent_has and not gt_has:
@@ -138,6 +141,7 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
 
     # ── Case 3: Correct clean sample identification ───────────────────
     elif not agent_has and not gt_has:
+        detection_score = 1.0
         base_score = 1.0
         calibration = 0.10 * confidence
         feedback_parts.append("✓ Clean sample correctly identified — no hallucination.")
@@ -145,7 +149,8 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
     # ── Case 4: Hallucination correctly detected ──────────────────────
     else:
         # Check 1 — Detection (0.50)
-        base_score += 0.50
+        detection_score = 0.50
+        base_score += detection_score
         feedback_parts.append("✓ Hallucination correctly detected.")
 
         # Check 2 — Phrase identification (0.30, coverage-scaled)
@@ -166,7 +171,8 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
 
         # Check 3 — Correct fact (0.20)
         if _matches_any(agent_fact, gt_corrections):
-            base_score += 0.20
+            fact_score = 0.20
+            base_score += fact_score
             feedback_parts.append("✓ Correct fact provided.")
         else:
             expected = gt_corrections[0] if gt_corrections else "N/A"
@@ -192,7 +198,14 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str]:
         label = "INCORRECT"
     feedback += f" || {label}"
 
-    return final_score, feedback
+    breakdown = {
+        "detection": round(detection_score, 4),
+        "phrase": round(phrase_score, 4),
+        "fact": round(fact_score, 4),
+        "calibration": round(calibration, 4),
+        "final": round(final_score, 4),
+    }
+    return final_score, feedback, breakdown
 
 
 # ── Self-tests ────────────────────────────────────────────────────────
@@ -221,7 +234,7 @@ if __name__ == "__main__":
         "ground_truth_corrections": ["contributed 38 percent of total revenue"],
     }
 
-    def make(has, claim=None, fact=None, conf=1.0):
+    def make(has, claim=None, fact=None, conf=0.99):
         return HallucinationAction(
             has_hallucination=has,
             hallucinated_claim=claim,
@@ -246,10 +259,10 @@ if __name__ == "__main__":
          make(True, "the year 1902 is incorrect", "it should be 1889"),
          hallucinated, lambda s: s >= 0.70),
         ("T6 False alarm on clean sample scores 0",
-         make(True, "completed in 1902", "completed in 1889", conf=1.0),
+         make(True, "completed in 1902", "completed in 1889", conf=0.99),
          clean, lambda s: s <= 0.002),
         ("T7 Always-True exploit resistance",
-         make(True, conf=1.0),
+         make(True, conf=0.99),
          hallucinated, lambda s: s <= 0.65),
         ("T8 Numeric match for digit-reversed error",
          make(True, "83 percent", "38 percent"),
@@ -264,7 +277,7 @@ if __name__ == "__main__":
 
     all_pass = True
     for desc, action, sample, check in tests:
-        score, feedback = grade(action, sample)
+        score, feedback, _ = grade(action, sample)
         passed = check(score)
         status = "PASS" if passed else "FAIL"
         if not passed:

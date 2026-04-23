@@ -2,6 +2,7 @@
 import uuid
 import sys
 import os
+import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from typing import Optional, Any
@@ -71,19 +72,19 @@ class HallucinationEnvironment(Environment[HallucinationAction, HallucinationObs
     ) -> HallucinationObservation:
 
         if self._done:
-            raise RuntimeError(
-                "Episode is finished. Call reset() before calling step() again."
-            )
+            raise RuntimeError("Episode done. Call reset() first.")
 
         if not self._samples or self._index >= len(self._samples):
             raise RuntimeError(
             "No active episode. Call reset() before calling step()."
         )
-    
+        step_start = time.time()
+        timeout_limit_s = float(timeout_s) if timeout_s is not None else 30.0
+
         self._steps += 1
         current_sample = self._samples[self._index]
 
-        sample_score, feedback_text = grade(action, current_sample)
+        sample_score, feedback_text, breakdown = grade(action, current_sample)
         self._scores.append(sample_score)
 
         if len(self._scores) == 1:
@@ -102,6 +103,24 @@ class HallucinationEnvironment(Environment[HallucinationAction, HallucinationObs
         )
         self._done = done
 
+        step_duration = time.time() - step_start
+        if step_duration > timeout_limit_s:
+            self._done = True
+            return HallucinationObservation(
+                done=True,
+                reward=0.001,
+                feedback="Step timeout — 30 second limit exceeded",
+                task_id=self._task_id,
+                sample_index=self._index,
+                total_samples=len(self._samples),
+                reference_document="",
+                llm_response="",
+                score=0.001,
+                steps_taken=self._steps,
+                max_steps=self._max_steps,
+                metadata={"episode_id": self._episode_id, "timeout": True},
+            )
+
         if done:
             return HallucinationObservation(
                 done=True,
@@ -115,7 +134,10 @@ class HallucinationEnvironment(Environment[HallucinationAction, HallucinationObs
                 score=round(episode_score, 4),
                 steps_taken=self._steps,
                 max_steps=self._max_steps,
-                metadata={"episode_id": self._episode_id}
+                metadata={
+                    "episode_id": self._episode_id,
+                    "reward_breakdown": breakdown,
+                }
             )
         else:
             nxt = self._samples[self._index]
@@ -134,7 +156,8 @@ class HallucinationEnvironment(Environment[HallucinationAction, HallucinationObs
                 metadata={
                     "episode_id": self._episode_id,
                     "hint": nxt.get("hint", ""),
-                    "last_sample_score": sample_score
+                    "last_sample_score": sample_score,
+                    "reward_breakdown": breakdown,
                 }
             )
 

@@ -128,7 +128,7 @@ def evaluate_agent(agent_fn, task_id: str) -> dict:
     scores = []
     for sample in samples:
         action = agent_fn(sample)
-        score, _ = grade(action, sample)
+        score, _, _ = grade(action, sample)
         scores.append(score)
     return {
         "scores": scores,
@@ -146,8 +146,8 @@ def check_determinism() -> bool:
         correct_fact="completed in 1889",
         confidence=0.9
     )
-    s1, _ = grade(action, sample)
-    s2, _ = grade(action, sample)
+    s1, _, _ = grade(action, sample)
+    s2, _, _ = grade(action, sample)
     return s1 == s2
 
 
@@ -249,7 +249,7 @@ if __name__ == "__main__":
     print("\n── SECTION 5: Per-sample detail (easy task) ──")
     for i, sample in enumerate(get_task("easy")):
         action = agent_easy(sample)
-        score, feedback = grade(action, sample)
+        score, feedback, _ = grade(action, sample)
         has_gt = sample["ground_truth_has_hallucination"]
         grade_label = feedback.split("||")[1].strip() if "||" in feedback else ""
         print(f"  Sample {i+1:>2} ({'hallucinated' if has_gt else 'clean':>11}): {score:.4f}  {grade_label}")
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     print("\n── SECTION 6: Per-sample detail (medium task) ──")
     for i, sample in enumerate(get_task("medium")):
         action = agent_medium(sample)
-        score, feedback = grade(action, sample)
+        score, feedback, _ = grade(action, sample)
         has_gt = sample["ground_truth_has_hallucination"]
         grade_label = feedback.split("||")[1].strip() if "||" in feedback else ""
         print(f"  Sample {i+1:>2} ({'hallucinated' if has_gt else 'clean':>11}): {score:.4f}  {grade_label}")
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     print("\n── SECTION 7: Per-sample detail (hard task) ──")
     for i, sample in enumerate(get_task("hard")):
         action = agent_hard(sample)
-        score, feedback = grade(action, sample)
+        score, feedback, _ = grade(action, sample)
         has_gt = sample["ground_truth_has_hallucination"]
         grade_label = feedback.split("||")[1].strip() if "||" in feedback else ""
         print(f"  Sample {i+1:>2} ({'hallucinated' if has_gt else 'clean':>11}): {score:.4f}  {grade_label}")

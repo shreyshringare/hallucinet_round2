@@ -36,11 +36,16 @@ except Exception as e:  # pragma: no cover
     ) from e
 
 try:
-    from ..models import HallucinetAdversarialAction, HallucinetAdversarialObservation
-    from .hallucinet_adversarial_environment import HallucinetAdversarialEnvironment
-except ModuleNotFoundError:
     from models import HallucinetAdversarialAction, HallucinetAdversarialObservation
     from server.hallucinet_adversarial_environment import HallucinetAdversarialEnvironment
+except ImportError:
+    from hallucinet_adversarial.models import (
+        HallucinetAdversarialAction,
+        HallucinetAdversarialObservation,
+    )
+    from hallucinet_adversarial.server.hallucinet_adversarial_environment import (
+        HallucinetAdversarialEnvironment,
+    )
 
 
 # Create the app with web interface and README integration
@@ -51,6 +56,17 @@ app = create_app(
     env_name="hallucinet_adversarial",
     max_concurrent_envs=1,  # increase this number to allow more concurrent WebSocket sessions
 )
+
+
+@app.get("/adversarial/info")
+def adversarial_info():
+    return {
+        "environment": "hallucinet-adversarial",
+        "generator": "enabled",
+        "detector": "enabled",
+        "curriculum": "enabled",
+        "status": "running",
+    }
 
 
 def main(host: str = "0.0.0.0", port: int = 8000):

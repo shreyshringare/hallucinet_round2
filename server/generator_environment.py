@@ -18,6 +18,7 @@ The generator learns to create harder challenges as the detector improves.
 import uuid
 import sys
 import os
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -215,6 +216,9 @@ class GeneratorEnvironment(Environment[GeneratorAction, GeneratorObservation, Ge
         if not self._samples or self._index >= len(self._samples):
             raise RuntimeError("No active episode. Call reset() first.")
 
+        step_start = time.time()
+        timeout_limit_s = float(timeout_s) if timeout_s is not None else 30.0
+
         self._steps += 1
         current_sample = self._samples[self._index]
 
@@ -242,6 +246,23 @@ class GeneratorEnvironment(Environment[GeneratorAction, GeneratorObservation, Ge
         self._index += 1
         done = self._index >= len(self._samples) or self._steps >= self._max_steps
         self._done = done
+
+        step_duration = time.time() - step_start
+        if step_duration > timeout_limit_s:
+            self._done = True
+            return GeneratorObservation(
+                reference_document="",
+                task_id=self._task_id,
+                previous_responses=self._previous_responses,
+                detector_caught=None,
+                fooling_rate=round(fooling_rate, 4),
+                done=True,
+                reward=0.001,
+                feedback="Step timeout — 30 second limit exceeded",
+                steps_taken=self._steps,
+                max_steps=self._max_steps,
+                metadata={"episode_id": self._episode_id, "timeout": True},
+            )
 
         if done:
             return GeneratorObservation(

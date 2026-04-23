@@ -20,10 +20,14 @@ import os
 import csv
 from typing import List, Optional
 
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from adversarial_coordinator import run_adversarial_session
 from curriculum import AdversarialCurriculumManager
+
+# Load .env from project root when running locally.
+load_dotenv()
 
 # Env vars
 HF_TOKEN = os.getenv("HF_TOKEN")

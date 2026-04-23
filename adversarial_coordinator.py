@@ -237,12 +237,11 @@ def run_adversarial_round(
     from tasks import get_task
 
     samples = get_task(task_id)
-    # Use the sample that matches the reference
+    # Use deterministic index-based matching (same ordering as session loop)
     matching_sample = None
-    for s in samples:
-        if s["reference_document"] == reference:
-            matching_sample = s
-            break
+    if samples:
+        sample_index = (round_num - 1) % len(samples)
+        matching_sample = samples[sample_index]
 
     if matching_sample:
         graded = grade(det_action, matching_sample)

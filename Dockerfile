@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY . .
 
+
 EXPOSE 7860
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \

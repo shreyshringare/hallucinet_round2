@@ -56,22 +56,37 @@ class AdversarialCurriculumManager:
 
         decision = "stay"
         reason = ""
+        window_full = len(self.detector_history) >= self.window
 
         # Promote when detector masters current task
-        if det_avg >= PROMOTION_THRESHOLD and self.current_level < len(TASK_ORDER) - 1:
+        if (
+            window_full
+            and det_avg >= PROMOTION_THRESHOLD
+            and self.current_level < len(TASK_ORDER) - 1
+        ):
             self.current_level += 1
             self.promotions += 1
             decision = "promote"
-            reason = f"Detector catch rate {det_avg:.2f} >= {PROMOTION_THRESHOLD} -- escalating difficulty"
+            reason = (
+                f"Detector avg {det_avg:.2f} >= {PROMOTION_THRESHOLD} over "
+                f"{self.window} sessions"
+            )
             self.detector_history = []
             self.generator_history = []
 
         # Also promote when generator too dominant (needs harder task)
-        elif gen_avg >= PROMOTION_THRESHOLD and self.current_level < len(TASK_ORDER) - 1:
+        elif (
+            window_full
+            and gen_avg >= PROMOTION_THRESHOLD
+            and self.current_level < len(TASK_ORDER) - 1
+        ):
             self.current_level += 1
             self.promotions += 1
             decision = "promote"
-            reason = f"Generator fooling rate {gen_avg:.2f} >= {PROMOTION_THRESHOLD} -- harder task needed"
+            reason = (
+                f"Generator avg {gen_avg:.2f} >= {PROMOTION_THRESHOLD} -- "
+                "harder task needed"
+            )
             self.detector_history = []
             self.generator_history = []
 

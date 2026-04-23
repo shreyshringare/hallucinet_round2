@@ -17,9 +17,12 @@ from openenv.core.env_server.interfaces import Environment
 from openenv.core.env_server.types import State
 
 try:
-    from ..models import HallucinetAdversarialAction, HallucinetAdversarialObservation
-except ImportError:
     from models import HallucinetAdversarialAction, HallucinetAdversarialObservation
+except ImportError:
+    from hallucinet_adversarial.models import (
+        HallucinetAdversarialAction,
+        HallucinetAdversarialObservation,
+    )
 
 
 class HallucinetAdversarialEnvironment(Environment):

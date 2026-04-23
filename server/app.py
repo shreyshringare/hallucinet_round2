@@ -115,229 +115,216 @@ def demo_ui():
 <!DOCTYPE html>
 <html>
 <head>
-    <title>HalluciNet Adversarial - Round 2</title>
+    <title>HalluciNet Adversarial — Round 2</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, Arial, sans-serif; background: #0f1117; color: #e0e0e0; }
-        .header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 30px; text-align: center; border-bottom: 2px solid #0066cc; }
-        h1 { color: #00aaff; font-size: 28px; }
-        .subtitle { color: #888; margin-top: 8px; }
+        body { font-family: -apple-system, Arial; background: #0f1117; color: #e0e0e0; }
+        .header { background: linear-gradient(135deg,#1a1a2e,#16213e); padding: 30px; text-align: center; border-bottom: 2px solid #0066cc; }
+        h1 { color: #00aaff; font-size: 26px; }
+        .sub { color: #888; margin-top: 8px; font-size: 14px; }
         .tags { margin-top: 12px; }
-        .tag { display: inline-block; background: rgba(0,102,204,0.2); color: #00aaff; border: 1px solid #0066cc; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin: 3px; }
-        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
-        .card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 24px; margin: 20px 0; }
-        .card h2 { color: #00aaff; margin-bottom: 16px; font-size: 18px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        textarea { width: 100%; height: 100px; padding: 12px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; font-size: 13px; resize: vertical; }
-        input[type=text] { width: 100%; padding: 10px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; margin: 6px 0; }
-        select { padding: 10px; background: #0f1117; border: 1px solid #333; border-radius: 8px; color: #e0e0e0; }
-        button { background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px; transition: background 0.2s; }
+        .tag { display: inline-block; background: rgba(0,102,204,0.2); color: #00aaff; border: 1px solid #0066cc; padding: 3px 10px; border-radius: 20px; font-size: 11px; margin: 3px; }
+        .container { max-width: 960px; margin: 24px auto; padding: 0 20px; }
+        .card { background: #1a1a2e; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 16px 0; }
+        .card h2 { color: #00aaff; margin-bottom: 12px; font-size: 16px; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        textarea { width: 100%; height: 90px; padding: 10px; background: #0f1117; border: 1px solid #444; border-radius: 8px; color: #e0e0e0; font-size: 13px; }
+        input[type=text] { width: 100%; padding: 9px; background: #0f1117; border: 1px solid #444; border-radius: 8px; color: #e0e0e0; margin: 5px 0; font-size: 13px; }
+        select { padding: 9px; background: #0f1117; border: 1px solid #444; border-radius: 8px; color: #e0e0e0; font-size: 13px; }
+        button { background: #0066cc; color: white; padding: 9px 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 4px 0; }
         button:hover { background: #0052a3; }
-        .score { font-size: 28px; font-weight: bold; color: #00aaff; }
-        .breakdown { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin: 12px 0; }
+        button.red { background: #cc3300; }
+        button.green { background: #006633; }
+        label { color: #888; font-size: 12px; display: block; margin-top: 10px; margin-bottom: 3px; }
+        .score { font-size: 26px; font-weight: bold; color: #00aaff; margin: 8px 0; }
+        .breakdown { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin: 10px 0; }
         .metric { background: #0f1117; border: 1px solid #333; padding: 10px; border-radius: 8px; text-align: center; }
-        .metric-val { font-size: 18px; font-weight: bold; color: #00aaff; }
-        .metric-lbl { font-size: 10px; color: #666; margin-top: 4px; }
-        .feedback { background: #0f1117; border-left: 3px solid #00aaff; padding: 12px; border-radius: 4px; margin-top: 12px; font-size: 13px; }
-        .winner { font-size: 20px; font-weight: bold; padding: 8px; border-radius: 8px; margin: 8px 0; }
-        .gen-wins { background: rgba(255,100,0,0.2); color: #ff6400; }
-        .det-wins { background: rgba(0,200,100,0.2); color: #00c864; }
-        label { color: #888; font-size: 13px; display: block; margin-top: 12px; margin-bottom: 4px; }
-        .range-row { display: flex; align-items: center; gap: 12px; }
-        .range-row input { flex: 1; }
+        .mv { font-size: 18px; font-weight: bold; color: #00aaff; }
+        .ml { font-size: 10px; color: #666; margin-top: 3px; }
+        .feedback { background: #0f1117; border-left: 3px solid #0066cc; padding: 10px; border-radius: 4px; font-size: 12px; margin-top: 10px; }
+        .winner { font-size: 18px; font-weight: bold; padding: 10px; border-radius: 8px; text-align: center; margin: 8px 0; }
+        .gw { background: rgba(255,80,0,0.15); color: #ff6400; border: 1px solid #ff6400; }
+        .dw { background: rgba(0,180,80,0.15); color: #00c864; border: 1px solid #00c864; }
+        .row { display: flex; align-items: center; gap: 10px; }
+        .row input { flex: 1; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>HalluciNet Adversarial</h1>
-        <div class="subtitle">Multi-Agent Self-Improving Hallucination Detection - Round 2</div>
-        <div class="tags">
-            <span class="tag">Theme 1: Multi-Agent</span>
-            <span class="tag">Theme 4: Self-Improvement</span>
-            <span class="tag">OpenEnv Compatible</span>
-            <span class="tag">4 Difficulty Levels</span>
-            <span class="tag">Adversarial Self-Play</span>
-        </div>
+<div class="header">
+    <h1>🔍 HalluciNet Adversarial</h1>
+    <div class="sub">Multi-Agent Self-Improving Hallucination Detection — Round 2</div>
+    <div class="tags">
+        <span class="tag">Theme 1: Multi-Agent</span>
+        <span class="tag">Theme 4: Self-Improvement</span>
+        <span class="tag">OpenEnv 2.0</span>
+        <span class="tag">Adversarial Self-Play</span>
+        <span class="tag">4 Difficulty Levels</span>
     </div>
+</div>
 
-    <div class="container">
-        <div class="card">
-            <h2>Adversarial Demo</h2>
-            <p style="color:#888;margin-bottom:16px">Generator creates hallucinations. Detector tries to catch them. Watch them compete.</p>
-
-            <label>Difficulty:</label>
+<div class="container">
+    <div class="card">
+        <h2>🎮 Adversarial Demo — Generator vs Detector</h2>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
             <select id="task">
-                <option value="easy">Easy - Obvious errors</option>
-                <option value="medium">Medium - Mixed errors</option>
-                <option value="hard" selected>Hard - Adversarial traps</option>
-                <option value="expert">Expert - Multi-hop reasoning</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard" selected>Hard</option>
+                <option value="expert">Expert</option>
             </select>
-            <button onclick="loadSample()" style="margin-left:12px">Load Sample</button>
+            <button onclick="loadSample()">Load Sample</button>
+        </div>
 
-            <div class="grid" style="margin-top:16px">
-                <div>
-                    <label>Reference Document (ground truth):</label>
-                    <textarea id="ref" placeholder="Click Load Sample..."></textarea>
-                </div>
-                <div>
-                    <label>Generated LLM Response (may be hallucinated):</label>
-                    <textarea id="gen_response" placeholder="Will appear after Generator runs..."></textarea>
-                </div>
+        <div class="grid2">
+            <div>
+                <label>Reference Document (ground truth):</label>
+                <textarea id="ref" placeholder="Click Load Sample..."></textarea>
             </div>
-
-            <div class="grid" style="margin-top:16px">
-                <div class="card" style="margin:0">
-                    <h2 style="color:#ff6400">Generator Agent</h2>
-                    <label>Error Type:</label>
-                    <select id="error_type">
-                        <option value="year_swap">Year Swap</option>
-                        <option value="name_swap">Name Swap</option>
-                        <option value="number_swap">Number Swap</option>
-                        <option value="negation">Negation Trap</option>
-                        <option value="entity_flip">Entity Flip</option>
-                        <option value="unit_shift">Unit Shift</option>
-                        <option value="partial_truth">Partial Truth</option>
-                    </select>
-                    <label>Generator Confidence:</label>
-                    <div class="range-row">
-                        <input type="range" id="gen_conf" min="0.01" max="0.99" step="0.01" value="0.80" oninput="document.getElementById('gc').innerText=parseFloat(this.value).toFixed(2)">
-                        <span id="gc">0.80</span>
-                    </div>
-                    <label>Your Hallucination:</label>
-                    <textarea id="gen_text" rows="3" placeholder="Write a subtle hallucination based on the reference..."></textarea>
-                    <button onclick="runGenerator()" style="margin-top:8px;background:#cc4400">Generate Hallucination</button>
-                    <div id="gen_result" style="display:none;margin-top:12px">
-                        <div class="score" id="gen_score"></div>
-                        <div class="feedback" id="gen_feedback"></div>
-                    </div>
-                </div>
-
-                <div class="card" style="margin:0">
-                    <h2 style="color:#00c864">Detector Agent</h2>
-                    <label>Hallucinated Claim (or blank if clean):</label>
-                    <input type="text" id="det_claim" placeholder="Quote the wrong phrase...">
-                    <label>Correct Fact:</label>
-                    <input type="text" id="det_fact" placeholder="What does reference say?">
-                    <label>Detector Confidence:</label>
-                    <div class="range-row">
-                        <input type="range" id="det_conf" min="0.01" max="0.99" step="0.01" value="0.80" oninput="document.getElementById('dc').innerText=parseFloat(this.value).toFixed(2)">
-                        <span id="dc">0.80</span>
-                    </div>
-                    <button onclick="runDetector()" style="margin-top:8px;background:#006644">Submit Detection</button>
-                    <div id="det_result" style="display:none;margin-top:12px">
-                        <div class="score" id="det_score"></div>
-                        <div class="breakdown" id="det_breakdown"></div>
-                        <div class="feedback" id="det_feedback"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="battle_result" style="display:none;margin-top:20px;text-align:center">
-                <div class="winner" id="winner_display"></div>
-                <p style="color:#888;margin-top:8px">Generator reward: <span id="gr"></span> | Detector reward: <span id="dr"></span></p>
+            <div>
+                <label>LLM Response (detector evaluates this):</label>
+                <textarea id="llm_resp" placeholder="Will appear after loading sample..."></textarea>
             </div>
         </div>
 
-        <div class="card">
-            <h2>System Info</h2>
-            <div id="info_display" style="font-family:monospace;font-size:13px;color:#888">Loading...</div>
+        <div class="grid2" style="margin-top:14px">
+            <div class="card" style="margin:0;border-color:#cc3300">
+                <h2 style="color:#ff6400">🔥 Generator Agent</h2>
+                <label>Error Type:</label>
+                <select id="err_type">
+                    <option value="year_swap">Year Swap</option>
+                    <option value="name_swap">Name Swap</option>
+                    <option value="number_swap">Number Swap</option>
+                    <option value="negation">Negation Trap</option>
+                    <option value="entity_flip">Entity Flip</option>
+                    <option value="unit_shift">Unit Shift</option>
+                    <option value="partial_truth">Partial Truth</option>
+                </select>
+                <label>Your Hallucination:</label>
+                <textarea id="gen_text" placeholder="Write a subtle hallucination based on the reference..."></textarea>
+                <label>Confidence: <span id="gc_v">0.80</span></label>
+                <div class="row"><input type="range" id="gen_conf" min="0.01" max="0.99" step="0.01" value="0.8" oninput="document.getElementById('gc_v').innerText=parseFloat(this.value).toFixed(2)"></div>
+                <button class="red" onclick="runGenerator()" style="margin-top:10px;width:100%">Generate Hallucination</button>
+                <div id="gen_result" style="display:none;margin-top:10px">
+                    <div class="score" id="gen_score"></div>
+                    <div class="feedback" id="gen_fb"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin:0;border-color:#006633">
+                <h2 style="color:#00c864">🛡️ Detector Agent</h2>
+                <label>Hallucinated Claim (blank if clean):</label>
+                <input type="text" id="det_claim" placeholder="Quote the wrong phrase...">
+                <label>Correct Fact:</label>
+                <input type="text" id="det_fact" placeholder="What does reference actually say?">
+                <label>Confidence: <span id="dc_v">0.80</span></label>
+                <div class="row"><input type="range" id="det_conf" min="0.01" max="0.99" step="0.01" value="0.8" oninput="document.getElementById('dc_v').innerText=parseFloat(this.value).toFixed(2)"></div>
+                <button class="green" onclick="runDetector()" style="margin-top:10px;width:100%">Submit Detection</button>
+                <div id="det_result" style="display:none;margin-top:10px">
+                    <div class="score" id="det_score"></div>
+                    <div class="breakdown" id="det_bd"></div>
+                    <div class="feedback" id="det_fb"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="battle" style="display:none;margin-top:14px;text-align:center">
+            <div class="winner" id="winner"></div>
+            <p style="color:#666;font-size:13px;margin-top:6px">
+                Generator reward: <span id="gr" style="color:#ff6400"></span> &nbsp;|&nbsp;
+                Detector reward: <span id="dr" style="color:#00c864"></span>
+            </p>
         </div>
     </div>
 
-    <script>
-    async function loadSample() {
-        const r = await fetch('/reset', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({task_id: document.getElementById('task').value})
-        });
-        const d = await r.json();
-        const obs = d.observation || d;
-        document.getElementById('ref').value = obs.reference_document || '';
-        document.getElementById('gen_response').value = '';
-        document.getElementById('gen_result').style.display = 'none';
-        document.getElementById('det_result').style.display = 'none';
-        document.getElementById('battle_result').style.display = 'none';
-    }
+    <div class="card">
+        <h2>📊 Environment Info</h2>
+        <pre id="env_info" style="font-size:12px;color:#888;overflow:auto;max-height:200px">Loading...</pre>
+    </div>
+</div>
 
-    async function runGenerator() {
-        const genText = document.getElementById('gen_text').value;
-        if (!genText) { alert('Write a hallucination first'); return; }
+<script>
+async function loadSample() {
+    const r = await fetch('/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:document.getElementById('task').value})});
+    const d = await r.json();
+    const obs = d.observation||d;
+    document.getElementById('ref').value = obs.reference_document||'';
+    document.getElementById('llm_resp').value = obs.llm_response||'';
+    ['gen_result','det_result','battle'].forEach(id=>document.getElementById(id).style.display='none');
+}
 
-        await fetch('/generator/reset', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({task_id: document.getElementById('task').value})
-        });
+async function runGenerator() {
+    const genText = document.getElementById('gen_text').value;
+    if (!genText) { alert('Write a hallucination first'); return; }
+    await fetch('/generator/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task_id:document.getElementById('task').value})});
+    const r = await fetch('/generator/step',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:{
+        generated_response: genText,
+        error_type: document.getElementById('err_type').value,
+        confidence: parseFloat(document.getElementById('gen_conf').value)
+    }})});
+    const d = await r.json();
+    const obs = d.observation||d;
+    document.getElementById('llm_resp').value = genText;
+    document.getElementById('gen_result').style.display='block';
+    document.getElementById('gen_score').innerText = 'Generator Score: '+(obs.fooling_rate||0).toFixed(3);
+    document.getElementById('gen_fb').innerText = obs.feedback||'';
+}
 
-        const stepR = await fetch('/generator/step', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({action:{
-                generated_response: genText,
-                error_type: document.getElementById('error_type').value,
-                confidence: parseFloat(document.getElementById('gen_conf').value)
-            }})
-        });
-        const stepD = await stepR.json();
-        const obs = stepD.observation || stepD;
+async function runDetector() {
+    const claim = document.getElementById('det_claim').value;
+    const r = await fetch('/step',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:{
+        has_hallucination: claim.length>0,
+        hallucinated_claim: claim||null,
+        correct_fact: document.getElementById('det_fact').value||null,
+        confidence: parseFloat(document.getElementById('det_conf').value)
+    }})});
+    const d = await r.json();
+    const obs = d.observation||d;
+    const bd = obs.metadata?.reward_breakdown||{};
+    const caught = claim.length>0;
+    document.getElementById('det_result').style.display='block';
+    document.getElementById('det_score').innerText = 'Detector Score: '+(obs.score||0).toFixed(3);
+    document.getElementById('det_bd').innerHTML = `
+        <div class="metric"><div class="mv">${(bd.detection||0).toFixed(2)}</div><div class="ml">Detection</div></div>
+        <div class="metric"><div class="mv">${(bd.phrase||0).toFixed(2)}</div><div class="ml">Phrase ID</div></div>
+        <div class="metric"><div class="mv">${(bd.fact||0).toFixed(2)}</div><div class="ml">Correct Fact</div></div>
+        <div class="metric"><div class="mv">${(bd.calibration||0).toFixed(2)}</div><div class="ml">Calibration</div></div>`;
+    document.getElementById('det_fb').innerText = obs.feedback||'';
+    document.getElementById('battle').style.display='block';
+    const el = document.getElementById('winner');
+    if(caught){el.className='winner dw';el.innerText='🛡️ DETECTOR WINS — Hallucination caught!';}
+    else{el.className='winner gw';el.innerText='🔥 GENERATOR WINS — Hallucination slipped through!';}
+    document.getElementById('gr').innerText = (caught?'0.001':'0.999');
+    document.getElementById('dr').innerText = (obs.score||0).toFixed(3);
+}
 
-        document.getElementById('gen_response').value = genText;
-        document.getElementById('gen_result').style.display = 'block';
-        document.getElementById('gen_score').innerText = 'Generator Score: ' + (obs.fooling_rate||0).toFixed(3);
-        document.getElementById('gen_feedback').innerText = obs.feedback || '';
-    }
+fetch('/adversarial/info').then(r=>r.json()).then(d=>{
+    document.getElementById('env_info').innerText = JSON.stringify(d,null,2);
+}).catch(()=>{
+    document.getElementById('env_info').innerText = 'Info endpoint not available';
+});
 
-    async function runDetector() {
-        const claim = document.getElementById('det_claim').value;
-        const r = await fetch('/step', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({action:{
-                has_hallucination: claim.length > 0,
-                hallucinated_claim: claim || null,
-                correct_fact: document.getElementById('det_fact').value || null,
-                confidence: parseFloat(document.getElementById('det_conf').value)
-            }})
-        });
-        const d = await r.json();
-        const obs = d.observation || d;
-        const bd = obs.metadata?.reward_breakdown || {};
-
-        const caught = claim.length > 0;
-        const genReward = caught ? 0.001 : 0.999;
-        const detReward = obs.score || 0;
-
-        document.getElementById('det_result').style.display = 'block';
-        document.getElementById('det_score').innerText = 'Detector Score: ' + (obs.score||0).toFixed(3);
-        document.getElementById('det_breakdown').innerHTML = `
-            <div class="metric"><div class="metric-val">${(bd.detection||0).toFixed(2)}</div><div class="metric-lbl">Detection</div></div>
-            <div class="metric"><div class="metric-val">${(bd.phrase||0).toFixed(2)}</div><div class="metric-lbl">Phrase ID</div></div>
-            <div class="metric"><div class="metric-val">${(bd.fact||0).toFixed(2)}</div><div class="metric-lbl">Correct Fact</div></div>
-            <div class="metric"><div class="metric-val">${(bd.calibration||0).toFixed(2)}</div><div class="metric-lbl">Calibration</div></div>`;
-        document.getElementById('det_feedback').innerText = obs.feedback || '';
-
-        document.getElementById('battle_result').style.display = 'block';
-        const winnerEl = document.getElementById('winner_display');
-        if (caught) {
-            winnerEl.className = 'winner det-wins';
-            winnerEl.innerText = 'DETECTOR WINS - Hallucination caught!';
-        } else {
-            winnerEl.className = 'winner gen-wins';
-            winnerEl.innerText = 'GENERATOR WINS - Hallucination missed!';
-        }
-        document.getElementById('gr').innerText = genReward.toFixed(3);
-        document.getElementById('dr').innerText = detReward.toFixed(3);
-    }
-
-    async function loadInfo() {
-        const r = await fetch('/adversarial/info');
-        const d = await r.json();
-        document.getElementById('info_display').innerText = JSON.stringify(d, null, 2);
-    }
-
-    loadSample();
-    loadInfo();
-    </script>
+loadSample();
+</script>
 </body>
 </html>
 """)
+
+
+
+# Sample generator endpoint
+try:
+    from sample_generator import generate_batch
+    GENERATOR_AVAILABLE = True
+except ImportError:
+    GENERATOR_AVAILABLE = False
+
+@app.get("/generate")
+def generate_samples(n: int = 10):
+    """Generate fresh hallucination samples — unlimited training data."""
+    if not GENERATOR_AVAILABLE:
+        return {"error": "Sample generator not available", "samples": []}
+    samples = generate_batch(n=n, clean_ratio=0.2)
+    return {"samples": samples, "count": len(samples), "generated": True}
 
 def main():
     import uvicorn
