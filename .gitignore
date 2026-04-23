@@ -34,4 +34,5 @@ Thumbs.db
 .env
 .env
 
-benchmark_results.csv
+benchmark_results.csvenv/
+*.lock
