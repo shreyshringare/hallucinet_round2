@@ -36,3 +36,8 @@ Thumbs.db
 
 benchmark_results.csvenv/
 *.lock
+env/
+venv/
+.venv/
+__pycache__/
+*.pyc
