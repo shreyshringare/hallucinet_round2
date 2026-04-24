@@ -12,8 +12,8 @@ Theme 4: Self-Improvement through adversarial self-play
 
 MANDATORY:
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
-MODEL_NAME   = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
-HF_TOKEN     = os.getenv("HF_TOKEN") -- no default, must be set
+MODEL_NAME   = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY") -- no default, must be set
 """
 
 import os
@@ -30,9 +30,9 @@ from curriculum import AdversarialCurriculumManager
 load_dotenv()
 
 # Env vars
-HF_TOKEN = os.getenv("HF_TOKEN")
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.groq.com/openai/v1"
+MODEL_NAME = os.getenv("MODEL_NAME") or "llama-3.1-8b-instant"
 
 BENCHMARK = "hallucinet-adversarial"
 SESSIONS = int(os.getenv("SESSIONS", "6"))
@@ -65,10 +65,10 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
 # Main
 
 def main() -> None:
-    if not HF_TOKEN:
-        raise RuntimeError("HF_TOKEN is required. Set it before running inference.py")
+    if not GROQ_API_KEY:
+        raise RuntimeError("GROQ_API_KEY is required. Set it before running inference.py")
 
-    client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
+    client = OpenAI(base_url=API_BASE_URL, api_key=GROQ_API_KEY)
     curriculum = AdversarialCurriculumManager()
 
     all_gen_rewards: List[float] = []

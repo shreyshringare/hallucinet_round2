@@ -1,15 +1,23 @@
 ---
-title: Hallucinet Adversarial Environment Server
-emoji: 🏀
-colorFrom: yellow
-colorTo: gray
+title: HalluciNet
+emoji: 🚀
+colorFrom: blue
+colorTo: purple
 sdk: docker
 pinned: false
-app_port: 8000
-base_path: /web
-tags:
-  - openenv
 ---
+
+# HalluciNet Adversarial
+
+Adversarial self-improving hallucination detection using
+generator vs detector multi-agent RL.
+
+Built using:
+- OpenEnv
+- FastAPI
+- Hugging Face Spaces
+- Groq inference
+- GRPO training
 
 # Hallucinet Adversarial Environment
 

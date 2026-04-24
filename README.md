@@ -1,4 +1,11 @@
-# HalluciNet Adversarial — Round 2
+---
+title: HalluciNet Adversarial
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---HalluciNet Adversarial — Round 2
 
 Multi-agent, self-improving hallucination detection for OpenEnv.
 
