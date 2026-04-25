@@ -10,6 +10,7 @@ Theme 1: Multi-Agent (both agents improve together)
 
 TASK_ORDER = ["easy", "medium", "hard", "expert"]
 PROMOTION_THRESHOLD = 0.75  # detector must catch at this rate to advance
+DEMOTION_THRESHOLD = 0.40   # detector below this rate triggers demotion
 STAGNATION_ROUNDS = 5  # advance if no improvement after this many rounds
 
 
@@ -86,6 +87,21 @@ class AdversarialCurriculumManager:
             reason = (
                 f"Generator avg {gen_avg:.2f} >= {PROMOTION_THRESHOLD} -- "
                 "harder task needed"
+            )
+            self.detector_history = []
+            self.generator_history = []
+
+        # Demote when detector consistently fails current task
+        elif (
+            window_full
+            and det_avg < DEMOTION_THRESHOLD
+            and self.current_level > 0
+        ):
+            self.current_level -= 1
+            decision = "demote"
+            reason = (
+                f"Detector avg {det_avg:.2f} < {DEMOTION_THRESHOLD} over "
+                f"{self.window} sessions"
             )
             self.detector_history = []
             self.generator_history = []

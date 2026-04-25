@@ -485,8 +485,8 @@ TASKS: Dict[str, List[Dict[str, Any]]] = {
                 "integrating its organic grocery supply chain into Amazon's global delivery network."
             ),
             "ground_truth_has_hallucination": True,
-            "ground_truth_hallucinated_phrases": ["Whole Foods ... acquiring Amazon"],
-            "ground_truth_corrections": ["Amazon ... acquire the grocery chain Whole Foods"],
+            "ground_truth_hallucinated_phrases": ["acquiring Amazon"],
+            "ground_truth_corrections": ["Amazon announced its intention to acquire the grocery chain Whole Foods"],
             "hint": "Who bought whom?"
         },
 

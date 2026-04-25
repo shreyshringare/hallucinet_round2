@@ -84,13 +84,13 @@ def _matches_any(candidate: str, ground_truths: List[str]) -> bool:
         gt_prep = _preprocess(gt)
         if cand_prep in gt_prep or gt_prep in cand_prep:
             return True
-        if _keyword_overlap(cand_prep, gt_prep) >= 2:
+        if _keyword_overlap(cand_prep, gt_prep) >= 3:
             return True
         cand_nums = _extract_numbers(cand_prep)
         gt_nums = _extract_numbers(gt_prep)
         if cand_nums and gt_nums and (cand_nums & gt_nums):
             return True
-        if _ngram_similarity(cand_prep, gt_prep) >= 0.40:
+        if _ngram_similarity(cand_prep, gt_prep) >= 0.60:
             return True
     return False
 
@@ -179,7 +179,7 @@ def grade(action: Any, sample: Dict[str, Any]) -> Tuple[float, str, Dict[str, fl
             feedback_parts.append(f"✗ Correct fact not matched. Expected near: '{expected}'")
 
         # Calibration: additive ±0.10
-        is_correct = base_score >= 0.80
+        is_correct = base_score >= 0.50
         calibration = 0.10 * confidence if is_correct else -0.10 * confidence
 
     # ── Apply calibration and clamp to [0.0, 1.0] ────────────────────

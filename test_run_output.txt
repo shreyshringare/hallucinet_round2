@@ -1,0 +1,218 @@
+
+============================================================
+HalluciNet Adversarial -- Self-Play Training Simulation
+Model: llama-3.1-8b-instant
+Sessions: 6 | Rounds per session: 8
+============================================================
+
+[START] task=easy_session1 env=hallucinet-adversarial model=llama-3.1-8b-instant
+
+============================================================
+ADVERSARIAL SESSION -- task=easy rounds=8
+============================================================
+
+[ROUND 1] task=easy
+[GENERATOR] type=year_swap confidence=0.87
+[GENERATED] The Eiffel Tower was completed in 1902 in Paris, France. It was designed by Gustave Eiffel and stand...
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.213 det_reward=0.999
+
+[ROUND 2] task=easy
+[GENERATOR] type=year_swap confidence=0.90
+[GENERATED] The Taj Mahal is located in Agra, India. It was commissioned by Mughal emperor Shah Jahan in memory ...
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.210 det_reward=0.590
+
+[ROUND 3] task=easy
+[GENERATOR] type=partial_truth confidence=0.75
+[GENERATED] Python is a high-level, general-purpose programming language and is often used for rapid development...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.225 det_reward=0.580
+
+[ROUND 4] task=easy
+[GENERATOR] type=year_swap confidence=0.70
+[GENERATED] The Great Wall of China stretches approximately 21,200 kilometres in total length....
+[DETECTOR] caught=False confidence=0.00
+[RESULT] generator_wins=True gen_reward=0.770 det_reward=0.001
+
+[ROUND 5] task=easy
+[GENERATOR] type=year_swap confidence=0.85
+[GENERATED] The first iPhone was introduced by Apple on January 9, 2008. It was announced by Steve Jobs at the M...
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.215 det_reward=0.999
+
+[ROUND 6] task=easy
+[GENERATOR] type=year_swap confidence=0.30
+[GENERATED] Water boils at approximately 102 degrees Celsius at standard atmospheric pressure....
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.270 det_reward=0.790
+
+[ROUND 7] task=easy
+[GENERATOR] type=entity_flip confidence=0.85
+[GENERATED] The Amazon River is the largest river in the world by discharge volume. It flows through South Ameri...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.215 det_reward=0.001
+
+[ROUND 8] task=easy
+[GENERATOR] type=year_swap confidence=0.82
+[GENERATED] Albert Einstein was born on 14 March 1880 in Ulm, Germany. He developed the theory of relativity. He...
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.218 det_reward=0.001
+
+============================================================
+SESSION SUMMARY
+============================================================
+Generator wins: 1/8 (12.5%)
+Detector wins:  7/8 (87.5%)
+Avg gen reward: 0.2920
+Avg det reward: 0.4951
+============================================================
+
+[STEP] step=1 action=adversarial_session task=easy gen_rate=0.12 det_rate=0.88 reward=0.39 done=false error=null
+[CURRICULUM] session=1 task=easy decision=stay next=easy
+[END] success=false steps=8 score=0.394 rewards=0.29
+[START] task=easy_session2 env=hallucinet-adversarial model=llama-3.1-8b-instant
+
+============================================================
+ADVERSARIAL SESSION -- task=easy rounds=8
+============================================================
+
+[ROUND 1] task=easy
+[GENERATOR] type=year_swap confidence=0.80
+[GENERATED] The Eiffel Tower was completed in 1891 in Paris, France. It was designed by Gustave Eiffel and stand...
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.220 det_reward=0.999
+
+[ROUND 2] task=easy
+[GENERATOR] type=partial_truth confidence=0.90
+[GENERATED] The Taj Mahal is widely considered to be one of the most beautiful examples of Mughal architecture a...
+[DETECTOR] caught=False confidence=1.00
+[RESULT] generator_wins=True gen_reward=0.790 det_reward=0.001
+
+[ROUND 3] task=easy
+[GENERATOR] type=year_swap confidence=0.90
+[GENERATED] Python was created by Guido van Rossum and first released in 1993. It is a high-level, general-purpo...
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.210 det_reward=0.600
+
+[ROUND 4] task=easy
+[GENERATOR] type=number_swap confidence=0.65
+[GENERATED] The Great Wall of China stretches approximately 8,000 kilometres in total length....
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.235 det_reward=0.999
+
+[ROUND 5] task=easy
+[GENERATOR] type=partial_truth confidence=0.70
+[GENERATED] The first iPhone was released shortly after a private beta testing phase in early 2007. It was annou...
+[DETECTOR] caught=False confidence=1.00
+[RESULT] generator_wins=True gen_reward=0.770 det_reward=0.001
+
+[ROUND 6] task=easy
+[GENERATOR] type=year_swap confidence=0.65
+[GENERATED] Water boils at 101 degrees Celsius at standard atmospheric pressure. Below this temperature, water e...
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.235 det_reward=0.800
+
+[ROUND 7] task=easy
+[GENERATOR] type=number_swap confidence=0.75
+[GENERATED] The Amazon River is the largest river in the world by discharge volume and is home to over 2,000 spe...
+[DETECTOR] caught=False confidence=1.00
+[RESULT] generator_wins=True gen_reward=0.775 det_reward=0.999
+
+[ROUND 8] task=easy
+[GENERATOR] type=year_swap confidence=0.52
+[GENERATED] Albert Einstein was born on 17 March 1879 in Ulm, Germany. He developed the theory of relativity. He...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.248 det_reward=0.001
+
+============================================================
+SESSION SUMMARY
+============================================================
+Generator wins: 3/8 (37.5%)
+Detector wins:  5/8 (62.5%)
+Avg gen reward: 0.4354
+Avg det reward: 0.5500
+============================================================
+
+[STEP] step=2 action=adversarial_session task=easy gen_rate=0.38 det_rate=0.62 reward=0.49 done=false error=null
+[CURRICULUM] session=2 task=easy decision=stay next=easy
+[END] success=false steps=16 score=0.493 rewards=0.29,0.44
+[START] task=easy_session3 env=hallucinet-adversarial model=llama-3.1-8b-instant
+
+============================================================
+ADVERSARIAL SESSION -- task=easy rounds=8
+============================================================
+
+[ROUND 1] task=easy
+[GENERATOR] type=year_swap confidence=0.80
+[GENERATED] The Eiffel Tower was completed in 1892 in Paris, France. It was designed by Gustave Eiffel and stand...
+[DETECTOR] caught=True confidence=0.90
+[RESULT] generator_wins=False gen_reward=0.220 det_reward=0.999
+
+[ROUND 2] task=easy
+[GENERATOR] type=partial_truth confidence=0.80
+[GENERATED] The Taj Mahal, commissioned by Shah Jahan in memory of his wife Mumtaz Mahal, took approximately six...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.220 det_reward=0.580
+
+[ROUND 3] task=easy
+[GENERATOR] type=year_swap confidence=0.60
+[GENERATED] Python was created by Guido van Rossum, first releasing it in 1992 as a high-level, general-purpose ...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.240 det_reward=0.580
+
+[ROUND 4] task=easy
+[GENERATOR] type=number_swap confidence=0.30
+[GENERATED] The Great Wall of China stretches approximately 21,195 kilometres in total length....
+[DETECTOR] caught=False confidence=0.00
+[RESULT] generator_wins=True gen_reward=0.730 det_reward=0.001
+
+[ROUND 5] task=easy
+[GENERATOR] type=year_swap confidence=0.85
+[GENERATED] The first iPhone was introduced by Apple on January 9, 2006....
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.215 det_reward=0.999
+
+[ROUND 6] task=easy
+[GENERATOR] type=negation confidence=0.95
+[GENERATED] At temperatures below 0°C, water is a liquid and at temperatures above 100°C, it transitions to stea...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.205 det_reward=0.580
+
+[ROUND 7] task=easy
+[GENERATOR] type=number_swap confidence=0.85
+[GENERATED] The Amazon River is the largest river in the world by discharge volume. It flows through South Ameri...
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.215 det_reward=0.001
+
+[ROUND 8] task=easy
+[GENERATOR] type=name_swap confidence=0.92
+[GENERATED] Albert Einstein was born on 14 March 1879 in Munich, Germany....
+[DETECTOR] caught=True confidence=0.80
+[RESULT] generator_wins=False gen_reward=0.208 det_reward=0.001
+
+============================================================
+SESSION SUMMARY
+============================================================
+Generator wins: 1/8 (12.5%)
+Detector wins:  7/8 (87.5%)
+Avg gen reward: 0.2816
+Avg det reward: 0.4676
+============================================================
+
+[STEP] step=3 action=adversarial_session task=easy gen_rate=0.12 det_rate=0.88 reward=0.37 done=false error=null
+[CURRICULUM] session=3 task=easy decision=promote next=medium
+[END] success=false steps=24 score=0.375 rewards=0.29,0.44,0.28
+[START] task=medium_session4 env=hallucinet-adversarial model=llama-3.1-8b-instant
+
+============================================================
+ADVERSARIAL SESSION -- task=medium rounds=8
+============================================================
+
+[ROUND 1] task=medium
+[GENERATOR] type=year_swap confidence=0.70
+[GENERATED] The Burj Khalifa in Dubai is the tallest building in the world, standing 828 metres tall. Constructi...
+[DETECTOR] caught=True confidence=1.00
+[RESULT] generator_wins=False gen_reward=0.230 det_reward=0.600
+
+[ROUND 2] task=medium
