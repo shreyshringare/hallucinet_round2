@@ -152,7 +152,7 @@ def main() -> None:
                 success=success,
                 steps=session_num * ROUNDS_PER_SESSION,
                 score=combined_score,
-                rewards=all_gen_rewards[-ROUNDS_PER_SESSION:],
+                rewards=all_det_rewards[-ROUNDS_PER_SESSION:],
             )
 
     curriculum.print_log()

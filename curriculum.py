@@ -35,6 +35,7 @@ class AdversarialCurriculumManager:
         self.generator_history = []
         self.window = 3
         self.promotions = 0
+        self.demotions = 0
         self.session_log = []
 
     @property
@@ -98,6 +99,7 @@ class AdversarialCurriculumManager:
             and self.current_level > 0
         ):
             self.current_level -= 1
+            self.demotions += 1
             decision = "demote"
             reason = (
                 f"Detector avg {det_avg:.2f} < {DEMOTION_THRESHOLD} over "
@@ -106,8 +108,16 @@ class AdversarialCurriculumManager:
             self.detector_history = []
             self.generator_history = []
 
+        if decision == "promote":
+            played_level = self.current_level - 1
+        elif decision == "demote":
+            played_level = self.current_level + 1
+        else:
+            played_level = self.current_level
+        played_level = max(0, min(len(TASK_ORDER) - 1, played_level))
+
         entry = {
-            "task": TASK_ORDER[max(0, self.current_level - (1 if decision == "promote" else 0))],
+            "task": TASK_ORDER[played_level],
             "det_rate": det_rate,
             "gen_rate": gen_rate,
             "det_avg": round(det_avg, 4),
@@ -131,7 +141,7 @@ class AdversarialCurriculumManager:
             )
             if e["reason"]:
                 print(f"          Reason: {e['reason']}")
-        print(f"\nFinal level: {self.current_task} | Promotions: {self.promotions}")
+        print(f"\nFinal level: {self.current_task} | Promotions: {self.promotions} | Demotions: {self.demotions}")
         print("=" * 70 + "\n")
 
     def status(self) -> dict:
@@ -139,5 +149,6 @@ class AdversarialCurriculumManager:
             "current_task": self.current_task,
             "current_level": self.current_level,
             "promotions": self.promotions,
+            "demotions": self.demotions,
             "sessions_completed": len(self.session_log),
         }
